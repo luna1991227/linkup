@@ -189,7 +189,7 @@ export async function updateServiceProvider(id: number, updates: Partial<Service
   // For multiple updates, we'll need to handle them individually
   // This is a simple approach that works with Vercel Postgres limitations
   const { rows } = await sql`SELECT * FROM service_providers WHERE id = ${id}`;
-  let result = rows[0] as any;
+  const result = rows[0] as any;
   if (!result) return null;
 
   // Parse JSON arrays back to JavaScript arrays
