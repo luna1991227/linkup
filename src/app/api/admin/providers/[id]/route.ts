@@ -4,10 +4,11 @@ import { getServiceProviderById, updateServiceProvider, deleteServiceProvider } 
 
 async function handleGetProvider(
   req: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid provider ID' },
@@ -21,7 +22,7 @@ async function handleGetProvider(
       SELECT * FROM service_providers WHERE id = ${id}
     `;
     
-    const provider = rows[0];
+    const provider = rows[0] as any;
     if (!provider) {
       return NextResponse.json(
         { error: 'Provider not found' },
@@ -29,7 +30,15 @@ async function handleGetProvider(
       );
     }
 
-    return NextResponse.json(provider);
+    // Parse JSON arrays back to JavaScript arrays
+    const parsedProvider = {
+      ...provider,
+      photos: typeof provider.photos === 'string' ? JSON.parse(provider.photos) : provider.photos,
+      videos: typeof provider.videos === 'string' ? JSON.parse(provider.videos) : provider.videos,
+      tags: typeof provider.tags === 'string' ? JSON.parse(provider.tags) : provider.tags,
+    };
+
+    return NextResponse.json(parsedProvider);
   } catch (error) {
     console.error('Failed to fetch provider:', error);
     return NextResponse.json(
@@ -41,10 +50,11 @@ async function handleGetProvider(
 
 async function handleUpdateProvider(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid provider ID' },
@@ -74,10 +84,11 @@ async function handleUpdateProvider(
 
 async function handleDeleteProvider(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid provider ID' },

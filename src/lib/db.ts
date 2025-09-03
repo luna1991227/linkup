@@ -29,11 +29,11 @@ export async function createServiceProvidersTable() {
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       description TEXT NOT NULL,
-      photos TEXT[] DEFAULT '{}',
-      videos TEXT[] DEFAULT '{}',
+      photos TEXT DEFAULT '[]',
+      videos TEXT DEFAULT '[]',
       location VARCHAR(255),
       age INTEGER,
-      tags TEXT[] DEFAULT '{}',
+      tags TEXT DEFAULT '[]',
       availability BOOLEAN DEFAULT true,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -47,7 +47,14 @@ export async function getServiceProviders(): Promise<ServiceProvider[]> {
     WHERE availability = true 
     ORDER BY created_at DESC
   `;
-  return rows as ServiceProvider[];
+
+  // Parse JSON arrays back to JavaScript arrays
+  return rows.map((row: any) => ({
+    ...row,
+    photos: typeof row.photos === 'string' ? JSON.parse(row.photos) : row.photos,
+    videos: typeof row.videos === 'string' ? JSON.parse(row.videos) : row.videos,
+    tags: typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags,
+  })) as ServiceProvider[];
 }
 
 export async function getServiceProviderById(id: number): Promise<ServiceProvider | null> {
@@ -55,7 +62,17 @@ export async function getServiceProviderById(id: number): Promise<ServiceProvide
     SELECT * FROM service_providers 
     WHERE id = ${id} AND availability = true
   `;
-  return rows[0] as ServiceProvider || null;
+
+  const result = rows[0] as any;
+  if (!result) return null;
+
+  // Parse JSON arrays back to JavaScript arrays
+  return {
+    ...result,
+    photos: typeof result.photos === 'string' ? JSON.parse(result.photos) : result.photos,
+    videos: typeof result.videos === 'string' ? JSON.parse(result.videos) : result.videos,
+    tags: typeof result.tags === 'string' ? JSON.parse(result.tags) : result.tags,
+  } as ServiceProvider;
 }
 
 export async function createServiceProvider(provider: Omit<ServiceProvider, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceProvider> {
@@ -63,36 +80,144 @@ export async function createServiceProvider(provider: Omit<ServiceProvider, 'id'
     INSERT INTO service_providers (
       name, description, photos, videos, location, age, tags, availability
     ) VALUES (
-      ${provider.name}, ${provider.description}, ${provider.photos}, ${provider.videos},
-      ${provider.location}, ${provider.age}, ${provider.tags}, ${provider.availability ?? true}
+      ${provider.name}, 
+      ${provider.description}, 
+      ${JSON.stringify(provider.photos || [])}, 
+      ${JSON.stringify(provider.videos || [])},
+      ${provider.location}, 
+      ${provider.age}, 
+      ${JSON.stringify(provider.tags || [])}, 
+      ${provider.availability ?? true}
     )
     RETURNING *
   `;
-  return rows[0] as ServiceProvider;
+
+  // Parse JSON arrays back to JavaScript arrays
+  const result = rows[0] as any;
+  if (result) {
+    result.photos = typeof result.photos === 'string' ? JSON.parse(result.photos) : result.photos;
+    result.videos = typeof result.videos === 'string' ? JSON.parse(result.videos) : result.videos;
+    result.tags = typeof result.tags === 'string' ? JSON.parse(result.tags) : result.tags;
+  }
+  return result as ServiceProvider;
 }
 
 export async function updateServiceProvider(id: number, updates: Partial<ServiceProvider>): Promise<ServiceProvider | null> {
-  const setClause = Object.keys(updates)
-    .filter(key => key !== 'id' && key !== 'created_at' && key !== 'updated_at')
-    .map(key => `${key} = $${key}`)
-    .join(', ');
+  // Handle simple single-field updates with template literals
+  if (updates.name !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET name = ${updates.name}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as ServiceProvider || null;
+  }
 
-  if (!setClause) return null;
+  if (updates.description !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET description = ${updates.description}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as ServiceProvider || null;
+  }
 
-  const { rows } = await sql`
-    UPDATE service_providers 
-    SET ${sql.raw(setClause)}, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ${id}
-    RETURNING *
-  `;
-  return rows[0] as ServiceProvider || null;
+  if (updates.location !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET location = ${updates.location}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as ServiceProvider || null;
+  }
+
+  if (updates.age !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET age = ${updates.age}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as ServiceProvider || null;
+  }
+
+  if (updates.availability !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET availability = ${updates.availability}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as ServiceProvider || null;
+  }
+
+  if (updates.photos !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET photos = ${JSON.stringify(updates.photos || [])}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    const result = rows[0] as any;
+    if (result) {
+      result.photos = typeof result.photos === 'string' ? JSON.parse(result.photos) : result.photos;
+      result.videos = typeof result.videos === 'string' ? JSON.parse(result.videos) : result.videos;
+      result.tags = typeof result.tags === 'string' ? JSON.parse(result.tags) : result.tags;
+    }
+    return result as ServiceProvider || null;
+  }
+
+  if (updates.videos !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET videos = ${JSON.stringify(updates.videos || [])}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    const result = rows[0] as any;
+    if (result) {
+      result.photos = typeof result.photos === 'string' ? JSON.parse(result.photos) : result.photos;
+      result.videos = typeof result.videos === 'string' ? JSON.parse(result.videos) : result.videos;
+      result.tags = typeof result.tags === 'string' ? JSON.parse(result.tags) : result.tags;
+    }
+    return result as ServiceProvider || null;
+  }
+
+  if (updates.tags !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET tags = ${JSON.stringify(updates.tags || [])}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    const result = rows[0] as any;
+    if (result) {
+      result.photos = typeof result.photos === 'string' ? JSON.parse(result.photos) : result.photos;
+      result.videos = typeof result.videos === 'string' ? JSON.parse(result.videos) : result.videos;
+      result.tags = typeof result.tags === 'string' ? JSON.parse(result.tags) : result.tags;
+    }
+    return result as ServiceProvider || null;
+  }
+
+  // For multiple updates, we'll need to handle them individually
+  // This is a simple approach that works with Vercel Postgres limitations
+  const { rows } = await sql`SELECT * FROM service_providers WHERE id = ${id}`;
+  let result = rows[0] as any;
+  if (!result) return null;
+
+  // Parse JSON arrays back to JavaScript arrays
+  let currentProvider = {
+    ...result,
+    photos: typeof result.photos === 'string' ? JSON.parse(result.photos) : result.photos,
+    videos: typeof result.videos === 'string' ? JSON.parse(result.videos) : result.videos,
+    tags: typeof result.tags === 'string' ? JSON.parse(result.tags) : result.tags,
+  } as ServiceProvider | null;
+
+  // Apply updates one by one
+  for (const [key, value] of Object.entries(updates)) {
+    if (key === 'id' || key === 'created_at' || key === 'updated_at') continue;
+    if (value === undefined) continue;
+
+    const singleUpdate = { [key]: value };
+    currentProvider = await updateServiceProvider(id, singleUpdate);
+    if (!currentProvider) return null;
+  }
+
+  return currentProvider;
 }
 
 export async function deleteServiceProvider(id: number): Promise<boolean> {
   const { rowCount } = await sql`
     DELETE FROM service_providers WHERE id = ${id}
   `;
-  return rowCount > 0;
+  return rowCount ? rowCount > 0 : false;
 }
 
 // User management functions

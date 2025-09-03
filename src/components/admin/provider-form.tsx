@@ -62,25 +62,25 @@ export function ProviderForm({ provider, onSuccess, onCancel }: ProviderFormProp
     setError(null);
 
     try {
-      const uploadedUrls = [];
-      
+      const uploadedUrls: any[] = [];
+
       for (const file of Array.from(files)) {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         const response = await fetch('/api/admin/upload', {
           method: 'POST',
           body: formData,
         });
-        
+
         if (!response.ok) {
           throw new Error('Upload failed');
         }
-        
+
         const result = await response.json();
         uploadedUrls.push(result.url);
       }
-      
+
       setFormData(prev => ({
         ...prev,
         [type]: [...prev[type], ...uploadedUrls],
@@ -110,10 +110,10 @@ export function ProviderForm({ provider, onSuccess, onCancel }: ProviderFormProp
         age: formData.age ? parseInt(formData.age) : null,
       };
 
-      const url = provider 
+      const url = provider
         ? `/api/admin/providers/${provider.id}`
         : '/api/admin/providers';
-      
+
       const method = provider ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -159,7 +159,7 @@ export function ProviderForm({ provider, onSuccess, onCancel }: ProviderFormProp
                 required
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-1">年龄</label>
               <Input

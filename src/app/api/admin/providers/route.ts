@@ -9,7 +9,14 @@ async function getAllProviders() {
     SELECT * FROM service_providers 
     ORDER BY created_at DESC
   `;
-  return rows;
+  
+  // Parse JSON arrays back to JavaScript arrays
+  return rows.map((row: any) => ({
+    ...row,
+    photos: typeof row.photos === 'string' ? JSON.parse(row.photos) : row.photos,
+    videos: typeof row.videos === 'string' ? JSON.parse(row.videos) : row.videos,
+    tags: typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags,
+  }));
 }
 
 async function handleGetProviders() {
