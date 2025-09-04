@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Calendar, Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Play, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { ContactMethods } from '@/components/contact-methods';
 
@@ -54,12 +54,9 @@ export function ProviderModal({ provider, onClose }: ProviderModalProps) {
             <div className="flex items-center gap-3">
               <span className="text-2xl">{provider.name}</span>
               {provider.age && (
-                <Badge variant="outline">{provider.age}</Badge>
+                <Badge variant="outline">{provider.age}岁</Badge>
               )}
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
           </DialogTitle>
         </DialogHeader>
 
@@ -71,25 +68,23 @@ export function ProviderModal({ provider, onClose }: ProviderModalProps) {
                   {hasPhotos && (
                     <button
                       onClick={() => setActiveTab('photos')}
-                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                        activeTab === 'photos'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
-                      }`}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'photos'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
                     >
-                      Photos ({provider.photos.length})
+                      照片 ({provider.photos.length})
                     </button>
                   )}
                   {hasVideos && (
                     <button
                       onClick={() => setActiveTab('videos')}
-                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                        activeTab === 'videos'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
-                      }`}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'videos'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
                     >
-                      Videos ({provider.videos.length})
+                      视频 ({provider.videos.length})
                     </button>
                   )}
                 </div>
@@ -126,7 +121,7 @@ export function ProviderModal({ provider, onClose }: ProviderModalProps) {
                         </>
                       )}
                     </div>
-                    
+
                     {provider.photos.length > 1 && (
                       <div className="flex gap-2 mt-2 overflow-x-auto">
                         {provider.photos.map((photo, index) => (
@@ -134,9 +129,8 @@ export function ProviderModal({ provider, onClose }: ProviderModalProps) {
                             key={index}
                             src={photo}
                             alt={`Thumbnail ${index + 1}`}
-                            className={`w-16 h-16 object-cover rounded cursor-pointer border-2 flex-shrink-0 ${
-                              index === currentPhotoIndex ? 'border-blue-500' : 'border-transparent'
-                            }`}
+                            className={`w-16 h-16 object-cover rounded cursor-pointer border-2 flex-shrink-0 ${index === currentPhotoIndex ? 'border-blue-500' : 'border-transparent'
+                              }`}
                             onClick={() => setCurrentPhotoIndex(index)}
                           />
                         ))}
@@ -178,15 +172,14 @@ export function ProviderModal({ provider, onClose }: ProviderModalProps) {
                         </>
                       )}
                     </div>
-                    
+
                     {provider.videos.length > 1 && (
                       <div className="flex gap-2 mt-2 overflow-x-auto">
                         {provider.videos.map((video, index) => (
                           <div
                             key={index}
-                            className={`relative w-16 h-16 bg-gray-200 rounded cursor-pointer border-2 flex-shrink-0 flex items-center justify-center ${
-                              index === currentVideoIndex ? 'border-blue-500' : 'border-transparent'
-                            }`}
+                            className={`relative w-16 h-16 bg-gray-200 rounded cursor-pointer border-2 flex-shrink-0 flex items-center justify-center ${index === currentVideoIndex ? 'border-blue-500' : 'border-transparent'
+                              }`}
                             onClick={() => setCurrentVideoIndex(index)}
                           >
                             <Play className="h-4 w-4 text-gray-600" />
@@ -201,7 +194,7 @@ export function ProviderModal({ provider, onClose }: ProviderModalProps) {
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-2">About</h3>
+                <h3 className="text-lg font-semibold mb-2">简介</h3>
                 <p className="text-gray-600 leading-relaxed">{provider.description}</p>
               </div>
 
@@ -214,7 +207,7 @@ export function ProviderModal({ provider, onClose }: ProviderModalProps) {
 
               {provider.tags && provider.tags.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Tags</h3>
+                  <h3 className="text-lg font-semibold mb-2">标签</h3>
                   <div className="flex flex-wrap gap-2">
                     {provider.tags.map((tag, index) => (
                       <Badge key={index} variant="secondary">
@@ -226,13 +219,8 @@ export function ProviderModal({ provider, onClose }: ProviderModalProps) {
               )}
 
               <div className="pt-6 border-t">
-                <h3 className="text-lg font-semibold mb-4">Contact {provider.name}</h3>
+                <h3 className="text-lg font-semibold mb-4">向客服咨询 {provider.name}</h3>
                 <ContactMethods variant="default" showLabels={true} />
-                
-                <Button className="w-full mt-4" size="lg">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Book Appointment
-                </Button>
               </div>
             </div>
           </div>
