@@ -48,7 +48,7 @@ export default function ProvidersManagement() {
         throw new Error('Failed to update provider');
       }
 
-      setProviders(providers.map(p => 
+      setProviders(providers.map(p =>
         p.id === id ? { ...p, availability: !currentAvailability } : p
       ));
     } catch (err) {
@@ -139,7 +139,7 @@ export default function ProvidersManagement() {
                     <span className="text-gray-400">No Image</span>
                   </div>
                 )}
-                
+
                 <div className="absolute top-2 right-2">
                   <Badge variant={provider.availability ? "default" : "secondary"}>
                     {provider.availability ? "活跃" : "隐藏"}
@@ -181,7 +181,7 @@ export default function ProvidersManagement() {
                         <Pencil className="h-3 w-3" />
                       </Button>
                     </Link>
-                    
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -193,7 +193,7 @@ export default function ProvidersManagement() {
                         <Eye className="h-3 w-3" />
                       )}
                     </Button>
-                    
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -202,7 +202,7 @@ export default function ProvidersManagement() {
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
-                  
+
                   <div className="text-xs text-gray-500">
                     ID: {provider.id}
                   </div>

@@ -17,7 +17,7 @@ export function ProviderCard({ provider, onClick }: ProviderCardProps) {
 
   return (
     <Card
-      className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+      className="cursor-pointer hover:shadow-lg transition-shadow duration-200 pt-0"
       onClick={onClick}
     >
       <div className="relative">
