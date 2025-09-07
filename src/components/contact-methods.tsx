@@ -26,6 +26,22 @@ export function ContactMethods({ variant = 'default', showLabels = true }: Conta
     window.open(CONTACT_INFO.rednote.link, '_blank', 'noopener,noreferrer');
   };
 
+  const handleWeChatClick = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_INFO.wechat.id);
+      alert(`微信号已复制: ${CONTACT_INFO.wechat.id}`);
+    } catch (err) {
+      // Fallback for older browsers or if clipboard API fails
+      const textArea = document.createElement('textarea');
+      textArea.value = CONTACT_INFO.wechat.id;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert(`微信号已复制: ${CONTACT_INFO.wechat.id}`);
+    }
+  };
+
   if (variant === 'compact') {
     return (
       <div className="flex gap-2">
@@ -83,6 +99,20 @@ export function ContactMethods({ variant = 'default', showLabels = true }: Conta
             width={20}
             height={20}
             className="h-5 w-5 flex-shrink-0"
+          />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleWeChatClick}
+          className="p-2"
+        >
+          <Image
+            src="/wechatIcon.png"
+            alt="WeChat"
+            width={16}
+            height={16}
+            className="h-4 w-4 flex-shrink-0"
           />
         </Button>
       </div>
@@ -171,6 +201,26 @@ export function ContactMethods({ variant = 'default', showLabels = true }: Conta
             )}
           </div>
         </Button>
+
+        <Button
+          variant="outline"
+          onClick={handleWeChatClick}
+          className="flex items-center justify-start gap-3 p-4 h-auto"
+        >
+          <Image
+            src="/wechatIcon.png"
+            alt="WeChat"
+            width={24}
+            height={24}
+            className="h-6 w-6 flex-shrink-0"
+          />
+          <div className="text-left">
+            <div className="font-medium">微信</div>
+            {showLabels && (
+              <div className="text-sm text-gray-500">@{CONTACT_INFO.wechat.id}</div>
+            )}
+          </div>
+        </Button>
       </div>
     );
   }
@@ -235,6 +285,21 @@ export function ContactMethods({ variant = 'default', showLabels = true }: Conta
           className="h-5 w-5 flex-shrink-0"
         />
         {showLabels && "小红书"}
+      </Button>
+
+      <Button
+        variant="outline"
+        onClick={handleWeChatClick}
+        className="flex items-center gap-2"
+      >
+        <Image
+          src="/wechatIcon.png"
+          alt="WeChat"
+          width={16}
+          height={16}
+          className="h-4 w-4 flex-shrink-0"
+        />
+        {showLabels && "微信"}
       </Button>
     </div>
   );
