@@ -19,6 +19,7 @@ export interface ServiceProvider {
   age?: number;
   tags: string[];
   availability?: boolean;
+  sequence?: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -35,6 +36,7 @@ export async function createServiceProvidersTable() {
       age INTEGER,
       tags TEXT DEFAULT '[]',
       availability BOOLEAN DEFAULT true,
+      sequence INTEGER DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -45,7 +47,7 @@ export async function getServiceProviders(): Promise<ServiceProvider[]> {
   const { rows } = await sql`
     SELECT * FROM service_providers 
     WHERE availability = true 
-    ORDER BY created_at DESC
+    ORDER BY sequence ASC, created_at DESC
   `;
 
   // Parse JSON arrays back to JavaScript arrays
@@ -186,6 +188,20 @@ export async function updateServiceProvider(id: number, updates: Partial<Service
     return result as ServiceProvider || null;
   }
 
+  if (updates.sequence !== undefined && Object.keys(updates).length === 1) {
+    const { rows } = await sql`
+      UPDATE service_providers SET sequence = ${updates.sequence}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id} RETURNING *
+    `;
+    const result = rows[0] as any;
+    if (result) {
+      result.photos = typeof result.photos === 'string' ? JSON.parse(result.photos) : result.photos;
+      result.videos = typeof result.videos === 'string' ? JSON.parse(result.videos) : result.videos;
+      result.tags = typeof result.tags === 'string' ? JSON.parse(result.tags) : result.tags;
+    }
+    return result as ServiceProvider || null;
+  }
+
   // For multiple updates, we'll need to handle them individually
   // This is a simple approach that works with Vercel Postgres limitations
   const { rows } = await sql`SELECT * FROM service_providers WHERE id = ${id}`;
@@ -255,4 +271,20 @@ export async function getUserById(id: number): Promise<User | null> {
     SELECT * FROM users WHERE id = ${id}
   `;
   return rows[0] as User || null;
+}
+
+export async function updateProvidersSequence(sequences: { id: number; sequence: number }[]): Promise<boolean> {
+  try {
+    for (const { id, sequence } of sequences) {
+      await sql`
+        UPDATE service_providers 
+        SET sequence = ${sequence}, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ${id}
+      `;
+    }
+    return true;
+  } catch (error) {
+    console.error('Failed to update sequences:', error);
+    return false;
+  }
 }

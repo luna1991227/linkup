@@ -7,7 +7,7 @@ async function getAllProviders() {
   const { sql } = await import('@vercel/postgres');
   const { rows } = await sql`
     SELECT * FROM service_providers 
-    ORDER BY created_at DESC
+    ORDER BY sequence ASC, created_at DESC
   `;
   
   // Parse JSON arrays back to JavaScript arrays

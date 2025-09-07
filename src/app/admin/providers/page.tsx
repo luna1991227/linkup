@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Pencil, Trash2, Plus, Eye, EyeOff } from 'lucide-react';
+import { Pencil, Trash2, Plus, Eye, EyeOff, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProvidersManagement() {
@@ -103,12 +103,20 @@ export default function ProvidersManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">模特管理</h1>
-        <Link href="/admin/providers/new">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            添加新模特
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/admin/providers/sequence">
+            <Button variant="outline">
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              序列管理
+            </Button>
+          </Link>
+          <Link href="/admin/providers/new">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              添加新模特
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {error && (
